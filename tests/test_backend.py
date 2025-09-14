@@ -1,7 +1,8 @@
-import django
-from django.core.cache import InvalidCacheBackendError
 from unittest import TestCase
 from unittest.mock import Mock, patch
+
+import django
+from django.core.cache import InvalidCacheBackendError
 from nose.tools import eq_, raises
 
 from django_elastipymemcache.client import ConfigurationEndpointClient
