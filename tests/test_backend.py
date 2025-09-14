@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 
 import django
 from django.core.cache import InvalidCacheBackendError
-from nose.tools import eq_, raises
+from nose.tools import eq_
 
 from django_elastipymemcache.client import ConfigurationEndpointClient
 
@@ -34,7 +34,7 @@ class BackendTestCase(TestCase):
         get_cluster_info.assert_called()
         backend._class.assert_called_once()
 
-    eq_(backend._class.call_args[0], (servers,))
+        eq_(backend._class.call_args[0], (servers,))
 
     @patch.object(ConfigurationEndpointClient, 'get_cluster_info')
     def test_node_info_cache(self, get_cluster_info):
@@ -52,11 +52,11 @@ class BackendTestCase(TestCase):
         backend.get('key2')
         backend._class.assert_called_once()
 
-    eq_(backend._class.call_args[0], (servers,))
-    assert backend._cache.get.call_count == 2
-    assert backend._cache.set.call_count == 2
+        eq_(backend._class.call_args[0], (servers,))
+        assert backend._cache.get.call_count == 2
+        assert backend._cache.set.call_count == 2
 
-    get_cluster_info.assert_called_once()
+        get_cluster_info.assert_called_once()
 
 
 @patch.object(ConfigurationEndpointClient, 'get_cluster_info')
