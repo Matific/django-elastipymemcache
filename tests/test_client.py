@@ -1,5 +1,4 @@
 import collections
-import socket as s
 from unittest.mock import call, patch
 
 from pymemcache.exceptions import (
@@ -23,8 +22,8 @@ EXAMPLE_RESPONSE = [
 @patch('socket.socket')
 def test_get_cluster_info(socket, _):
     recv_bufs = collections.deque([
-        b'VERSION 1.4.14\r\n',
-    ] + EXAMPLE_RESPONSE)
+                                      b'VERSION 1.4.14\r\n',
+                                  ] + EXAMPLE_RESPONSE)
 
     client = socket.return_value
     client.recv.side_effect = lambda *args, **kwargs: recv_bufs.popleft()
@@ -43,8 +42,8 @@ def test_get_cluster_info(socket, _):
 @patch('socket.socket')
 def test_get_cluster_info_before_1_4_13(socket, _):
     recv_bufs = collections.deque([
-        b'VERSION 1.4.13\r\n',
-    ] + EXAMPLE_RESPONSE)
+                                      b'VERSION 1.4.13\r\n',
+                                  ] + EXAMPLE_RESPONSE)
 
     client = socket.return_value
     client.recv.side_effect = lambda *args, **kwargs: recv_bufs.popleft()
@@ -120,4 +119,4 @@ def test_ignore_erros(socket, _):
         ('h', 0),
         ignore_cluster_errors=True,
     ).get_cluster_info()
-    assert cluster_info['nodes'] == ['h:0']
+    assert cluster_info['nodes'] == [('h', 0)]

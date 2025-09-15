@@ -1,5 +1,4 @@
 import logging
-from distutils.version import StrictVersion
 
 from django.utils.encoding import smart_str
 from packaging.version import parse

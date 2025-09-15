@@ -24,17 +24,15 @@ class BackendTestCase(TestCase):
     def test_split_servers(self, get_cluster_info):
         from django_elastipymemcache.backend import ElastiPymemcache
         backend = ElastiPymemcache('h:0', {})
-        servers = [('h1', 0), ('h2', 0)]
+        servers = ['h1:0', 'h2:0']
         get_cluster_info.return_value = {
             'nodes': servers
         }
-        backend._lib.Client = Mock()
+        backend._class = Mock()
         assert backend._cache
         get_cluster_info.assert_called()
-        backend._lib.Client.assert_called_once_with(
-            servers,
-            ignore_exc=True,
-        )
+        backend._class.assert_called_once()
+        assert backend._class.call_args[0] == (servers,)
 
     @patch.object(ConfigurationEndpointClient, 'get_cluster_info')
     def test_node_info_cache(self, get_cluster_info):
@@ -45,15 +43,13 @@ class BackendTestCase(TestCase):
         }
 
         backend = ElastiPymemcache('h:0', {})
-        backend._lib.Client = Mock()
+        backend._class = Mock()
         backend.set('key1', 'val')
         backend.get('key1')
         backend.set('key2', 'val')
         backend.get('key2')
-        backend._lib.Client.assert_called_once_with(
-            servers,
-            ignore_exc=True,
-        )
+        backend._class.assert_called_once()
+        assert backend._class.call_args[0] == (servers,)
         assert backend._cache.get.call_count == 2
         assert backend._cache.set.call_count == 2
 
@@ -64,7 +60,7 @@ class BackendTestCase(TestCase):
         from django_elastipymemcache.backend import ElastiPymemcache
         backend = ElastiPymemcache('h:0', {})
         get_cluster_info.side_effect = OSError()
-        assert backend.get_cluster_nodes() == []
+        assert backend.client_servers == []
 
     @patch.object(ConfigurationEndpointClient, 'get_cluster_info')
     def test_invalidate_cache(self, get_cluster_info):
@@ -75,7 +71,7 @@ class BackendTestCase(TestCase):
         }
 
         backend = ElastiPymemcache('h:0', {})
-        backend._lib.Client = Mock()
+        # backend._class = Mock()
         assert backend._cache
         backend._cache.get = Mock()
         backend._cache.get.side_effect = Exception()
@@ -100,10 +96,10 @@ class BackendTestCase(TestCase):
     def test_client_add(self, get_cluster_info):
         from django_elastipymemcache.backend import ElastiPymemcache
 
-    servers = [('h1', 0), ('h2', 0)]
-    get_cluster_info.return_value = {
-        'nodes': servers
-    }
+        servers = ['h1:0', 'h2:0']
+        get_cluster_info.return_value = {
+            'nodes': servers
+        }
 
         backend = ElastiPymemcache('h:0', {})
         ret = backend.add('key1', 'value1')
@@ -187,6 +183,7 @@ class BackendTestCase(TestCase):
         get_cluster_info.return_value = {
             'nodes': servers
         }
+        set_many.side_effect = [[':1:key1'], [':1:key2']]
 
         backend = ElastiPymemcache('h:0', {})
         ret = backend.set_many({'key1': 'value1', 'key2': 'value2'})
